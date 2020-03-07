@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "99989017353",
+    "firebase_url": "https://lecturealer.firebaseio.com",
+    "project_id": "lecturealer",
+    "storage_bucket": "lecturealer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99989017353:android:84037b9e7aaee0d2",
+        "android_client_info": {
+          "package_name": "yongj.in.hufs_lecture_alarm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99989017353-4fbt1h3lq7ufa162g8ckvjts373crav9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_xi_E3Vr3UdhxCIpQksiukcaWy974yxY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99989017353-4fbt1h3lq7ufa162g8ckvjts373crav9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
