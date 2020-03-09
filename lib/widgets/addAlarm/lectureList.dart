@@ -14,11 +14,9 @@ class LectureList extends StatelessWidget {
     this.error,
   });
 
-  Color getColor(String lectureId) {
-    return selectedLectureId == lectureId
-        ? Color.fromRGBO(204, 213, 221, 1)
-        : Colors.white;
-  }
+  Color getColor(String lectureId) => selectedLectureId == lectureId
+      ? Color.fromRGBO(204, 213, 221, 1)
+      : Colors.white;
 
   @override
   Widget build(BuildContext context) {

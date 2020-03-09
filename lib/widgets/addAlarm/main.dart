@@ -28,38 +28,33 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
   void initState() {
     super.initState();
 
-    _fetchLectures(departmentSelect);
+    fetchLectures(departmentSelect);
   }
 
   void onCampusSelect(String campus) {
     setState(() {
       campusSelect = campus;
-
       departmentSelect = Courses.courses[campusSelect + courseSelect][0][1];
-
-      _fetchLectures(departmentSelect);
     });
+    fetchLectures(departmentSelect);
   }
 
   void onCourseSelect(String course) {
     setState(() {
       courseSelect = course;
-
       departmentSelect = Courses.courses[campusSelect + courseSelect][0][1];
-
-      _fetchLectures(departmentSelect);
     });
+    fetchLectures(departmentSelect);
   }
 
   void onDepartmentSelect(String department) {
     setState(() {
       departmentSelect = department;
-
-      _fetchLectures(departmentSelect);
     });
+    fetchLectures(departmentSelect);
   }
 
-  void _fetchLectures(courseId) {
+  fetchLectures(courseId) {
     setState(() {
       lectureSelect = '';
       error = '';
@@ -77,7 +72,7 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
     });
   }
 
-  void onLectureSelect(String lectureId) {
+  onLectureSelect(String lectureId) {
     setState(() {
       lectureSelect = lectureSelect == lectureId ? '' : lectureId;
     });
@@ -95,10 +90,14 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
         padding: EdgeInsets.all(30),
         children: <Widget>[
           Center(
-              child: Text(
-            '알람을 추가할 강의를 선택하세요.',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          )),
+            child: Text(
+              '알람을 추가할 강의를 선택하세요.',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           RadioWidget(
             label: '캠퍼스:',
             values: ['서울', '글로벌'],
@@ -124,7 +123,7 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
       ),
       bottomNavigationBar: AddModalBottomAppBar(),
       floatingActionButton: AddModalFloatingActionButton(
-        disabled: error.isEmpty && lectures.isEmpty,
+        disabled: error.isEmpty && lectureSelect.isEmpty,
         onPress: () async {
           print('hi');
           try {
@@ -143,10 +142,10 @@ class _AddAlarmModalState extends State<AddAlarmModal> {
 }
 
 class AddModalFloatingActionButton extends StatelessWidget {
+  const AddModalFloatingActionButton({this.disabled, this.onPress});
+
   final bool disabled;
   final Function onPress;
-
-  const AddModalFloatingActionButton({this.disabled, this.onPress});
 
   @override
   Widget build(BuildContext context) {

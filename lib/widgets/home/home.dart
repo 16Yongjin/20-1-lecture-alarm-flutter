@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lecture_alarm_20_1/provider/provider.dart';
 import 'package:lecture_alarm_20_1/utils/lifecycleListener.dart';
-import 'package:lecture_alarm_20_1/widgets/addAlarm/addModal.dart';
+import 'package:lecture_alarm_20_1/widgets/addAlarm/main.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,11 +21,35 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   bool loadingRewardedVideoAd = false;
 
+  Widget build(BuildContext context) {
+    final alarm = Provider.of<Alarm>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('한국외대 수강신청 빈자리 알람'),
+        actions: <Widget>[
+          Visibility(
+            visible: !alarm.hitAlarmLimit,
+            child: RewardButton(onAccept: loadRewardedVideo),
+          )
+        ],
+      ),
+      body: loadingRewardedVideoAd
+          ? AdLoadingIndicator()
+          : AlarmListView(alarm: alarm),
+      bottomNavigationBar: HomeBottomAppBar(),
+      floatingActionButton: HomeFAB(alarm: alarm),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
   void loadRewardedVideo() {
     MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo();
 
     RewardedVideoAd.instance.load(
-        adUnitId: RewardedVideoAd.testAdUnitId, targetingInfo: targetingInfo);
+      adUnitId: RewardedVideoAd.testAdUnitId,
+      targetingInfo: targetingInfo,
+    );
 
     RewardedVideoAd.instance.listener = rewardedVideoListner;
 
@@ -91,6 +115,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       );
     });
 
+    // FCM 토큰 가져오기, 실패하면 알람 등록 불가!
     _firebaseMessaging.getToken().then((token) {
       print(token);
       alarm.setUserId(token);
@@ -100,123 +125,139 @@ class _HomeWidgetState extends State<HomeWidget> {
       print(e.toString());
     });
 
+    // 애드몹 설정
     FirebaseAdMob.instance
         .initialize(appId: 'ca-app-pub-9040837646422745~1053576428');
-
-    RewardedVideoAd.instance.listener = rewardedVideoListner;
   }
+}
 
+class AlarmListView extends StatelessWidget {
+  const AlarmListView({@required this.alarm});
+
+  final Alarm alarm;
+
+  @override
   Widget build(BuildContext context) {
-    final alarm = Provider.of<Alarm>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('한국외대 수강신청 빈자리 알람'),
-        actions: alarm.alarmLimit >= 5
-            ? null
-            : <Widget>[
-                IconButton(
-                  icon: Icon(Icons.card_giftcard),
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        content: ListTile(
-                          title: Text('알람등록 가능개수를 늘릴까요?'),
-                        ),
-                        actions: <Widget>[
-                          FlatButton(
-                            textColor: Colors.black,
-                            child: Text('아뇨'),
-                            onPressed: () => Navigator.of(
-                              context,
-                            ).pop(false),
-                          ),
-                          FlatButton(
-                            child: Text('네 (광고 보기)'),
-                            onPressed: () => Navigator.of(context).pop(true),
-                          ),
-                        ],
-                      ),
-                    ).then((adAccepted) {
-                      if (adAccepted != null && adAccepted) loadRewardedVideo();
-                    });
-                  },
-                )
-              ],
-      ),
-      body: loadingRewardedVideoAd
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  CircularProgressIndicator(),
-                  Text('광고 불러오는 중..')
-                ],
-              ),
-            )
-          : ListView(
-              padding: EdgeInsets.all(12.0),
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(15),
-                  child: Text(
-                      '내가 등록한 알람 ${alarm.myAlarms.length} / ${alarm.alarmLimit}개',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ),
-                ...alarm.myAlarms.map((lecture) => AlarmCard(lecture: lecture))
-              ],
-            ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            SizedBox(
-              height: 48,
-            )
-          ],
+    return ListView(
+      padding: EdgeInsets.all(12.0),
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(15),
+          child:
+              Text('내가 등록한 알람 ${alarm.myAlarms.length} / ${alarm.alarmLimit}개',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  )),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: alarm.hitAlarmLimit
-            ? Colors.grey[300]
-            : Theme.of(context).primaryColor,
-        elevation: 4.0,
-        icon: const Icon(Icons.add),
-        label: const Text(
-          '알람 추가하기',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        onPressed: alarm.hitAlarmLimit
-            ? null
-            : () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<String>(
-                    builder: (BuildContext context) => AddAlarmModal(),
-                    fullscreenDialog: true,
-                  ),
-                ).then((message) {
-                  if (message == null || message.isEmpty) return;
-
-                  showToast(message);
-                });
-              },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        ...alarm.myAlarms.map((lecture) => AlarmCard(lecture: lecture))
+      ],
     );
   }
+}
 
-  void showToast(String message) {
-    Toast.show(
-      message,
-      context,
-      duration: Toast.LENGTH_LONG,
-      gravity: Toast.TOP,
+class HomeBottomAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[SizedBox(height: 48)],
+      ),
+    );
+  }
+}
+
+class HomeFAB extends StatelessWidget {
+  const HomeFAB({@required this.alarm});
+
+  final Alarm alarm;
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton.extended(
+      backgroundColor: alarm.hitAlarmLimit
+          ? Colors.grey[300]
+          : Theme.of(context).primaryColor,
+      elevation: 4.0,
+      icon: const Icon(Icons.add),
+      label:
+          const Text('알람 추가하기', style: TextStyle(fontWeight: FontWeight.bold)),
+      onPressed: alarm.hitAlarmLimit
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute<String>(
+                  builder: (BuildContext context) => AddAlarmModal(),
+                  fullscreenDialog: true,
+                ),
+              ).then((message) {
+                if (message == null || message.isEmpty) return;
+
+                Toast.show(
+                  message,
+                  context,
+                  duration: Toast.LENGTH_LONG,
+                  gravity: Toast.TOP,
+                );
+              });
+            },
+    );
+  }
+}
+
+class AdLoadingIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          CircularProgressIndicator(),
+          SizedBox(height: 20),
+          Text('광고 불러오는 중..'),
+        ],
+      ),
+    );
+  }
+}
+
+class RewardButton extends StatelessWidget {
+  RewardButton({this.onAccept});
+
+  final Function onAccept;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.card_giftcard),
+      onPressed: () async {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: ListTile(
+              title: Text('알람등록 가능개수를 늘릴까요?'),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                textColor: Colors.black,
+                child: Text('아뇨'),
+                onPressed: () => Navigator.of(
+                  context,
+                ).pop(false),
+              ),
+              FlatButton(
+                child: Text('네 (광고 보기)'),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          ),
+        ).then((adAccepted) {
+          if (adAccepted != null && adAccepted) onAccept();
+        });
+      },
     );
   }
 }

@@ -5,6 +5,8 @@ import 'package:lecture_alarm_20_1/model/lecture.dart';
 import 'package:lecture_alarm_20_1/provider/alarmProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const ALARM_LIMIT = 5;
+
 class Alarm with ChangeNotifier {
   String _userId;
   List<Lecture> _myAlarms = [];
@@ -41,7 +43,7 @@ class Alarm with ChangeNotifier {
 
   incrementAlarmLimit(int n) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _alarmLimit = min(alarmLimit + n, 5);
+    _alarmLimit = min(alarmLimit + n, ALARM_LIMIT);
     await prefs.setInt('alarmLimit', alarmLimit);
     print('incrementAlarmLimit $alarmLimit');
     notifyListeners();

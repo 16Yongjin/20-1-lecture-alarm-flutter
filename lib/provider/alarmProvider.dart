@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:lecture_alarm_20_1/model/lecture.dart';
 
-const String apiUrl = 'http://10.0.2.2:3000';
+const String apiUrl = 'https://api.lecture.hufs.app';
 const String userApiUrl = '$apiUrl/users';
 
 class AlarmProvider {
