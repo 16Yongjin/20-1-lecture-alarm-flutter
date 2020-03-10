@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AddModalBottomAppBar extends StatelessWidget {
+  final Function onActionPress;
+  final IconData actionIcon;
+
+  AddModalBottomAppBar({this.onActionPress, this.actionIcon});
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -15,23 +20,8 @@ class AddModalBottomAppBar extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  content: ListTile(
-                    title: Text('장식용 입니다.'),
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('ㅇㅋ'),
-                      onPressed: () => Navigator.of(context).pop(''),
-                    ),
-                  ],
-                ),
-              );
-            },
+            icon: Icon(actionIcon),
+            onPressed: onActionPress,
           ),
         ],
       ),

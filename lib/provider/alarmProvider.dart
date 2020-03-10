@@ -22,10 +22,10 @@ class AlarmProvider {
     print('userId: $userId');
     print('lectureId: $lectureId');
 
-    final body = json.encode({'userId': userId, 'lectureId': lectureId});
+    if (userId.isEmpty) throw new Exception('알람 토큰이 없어서 알람을 등록할 수 없습니다.');
+    if (lectureId.isEmpty) throw new Exception('강의를 선택해주세요');
 
-    print('body');
-    print(body);
+    final body = json.encode({'userId': userId, 'lectureId': lectureId});
 
     final response = await http.post(
       userApiUrl,
@@ -33,7 +33,6 @@ class AlarmProvider {
       body: body,
     );
 
-    print(response.statusCode);
     if (response.statusCode == 200) {
       return parseLectures(response);
     } else {
@@ -54,6 +53,16 @@ class AlarmProvider {
 
   static Future<List<Lecture>> fetchLectures(String courseId) async {
     final response = await http.get('$apiUrl/lectures/$courseId');
+
+    if (response.statusCode == 200) {
+      return parseLectures(response);
+    } else {
+      throw Exception('강의를 가져오는데 실패했습니다.');
+    }
+  }
+
+  static Future<List<Lecture>> searchLectures(String query) async {
+    final response = await http.get('$apiUrl/lectures/search?name=$query');
 
     if (response.statusCode == 200) {
       return parseLectures(response);

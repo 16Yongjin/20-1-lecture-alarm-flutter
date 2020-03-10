@@ -6,8 +6,10 @@ class LectureList extends StatelessWidget {
   final String selectedLectureId;
   final Function onLectureSelect;
   final String error;
+  final bool searching;
 
   const LectureList({
+    this.searching = true,
     this.lectures,
     this.selectedLectureId,
     this.onLectureSelect,
@@ -21,7 +23,8 @@ class LectureList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (error.isNotEmpty)
-      return Center(
+      return Container(
+        margin: EdgeInsets.only(top: 20),
         child: Text(
           error,
           style: TextStyle(
@@ -30,7 +33,7 @@ class LectureList extends StatelessWidget {
           ),
         ),
       );
-    else if (lectures.length <= 0)
+    else if (searching && lectures.length <= 0)
       return Container(
         margin: EdgeInsets.only(top: 20),
         child: Column(
@@ -38,6 +41,15 @@ class LectureList extends StatelessWidget {
             CircularProgressIndicator(),
             SizedBox(height: 20),
             Text("강의 목록 가져오는 중.."),
+          ],
+        ),
+      );
+    else if (lectures.length <= 0)
+      return Container(
+        margin: EdgeInsets.only(top: 20),
+        child: Column(
+          children: [
+            Text("검색된 강의가 없습니다."),
           ],
         ),
       );

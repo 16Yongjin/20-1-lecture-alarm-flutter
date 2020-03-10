@@ -5,17 +5,18 @@ import 'package:lecture_alarm_20_1/model/lecture.dart';
 import 'package:lecture_alarm_20_1/provider/alarmProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const ALARM_LIMIT = 5;
+const ALARM_LIMIT = 7;
 
 class Alarm with ChangeNotifier {
   String _userId;
   List<Lecture> _myAlarms = [];
-  int _alarmLimit = 1;
+  int _alarmLimit = 2;
 
   String get userId => _userId;
   List<Lecture> get myAlarms => _myAlarms;
   int get alarmLimit => _alarmLimit;
   bool get hitAlarmLimit => _myAlarms.length >= _alarmLimit;
+  bool get canGetReward => _alarmLimit < ALARM_LIMIT;
 
   Future<void> loadMyAlarms() async {
     _myAlarms = await AlarmProvider.loadMyAlarms(userId);
@@ -33,7 +34,7 @@ class Alarm with ChangeNotifier {
   }
 
   void setUserId(String token) {
-    _userId = token;
+    _userId = token ?? '';
   }
 
   void initAlarmLimit() async {
