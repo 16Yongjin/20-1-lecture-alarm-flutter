@@ -39,7 +39,8 @@ class Alarm with ChangeNotifier {
 
   void initAlarmLimit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _alarmLimit = prefs.getInt('alarmLimit') ?? 1;
+    _alarmLimit = prefs.getInt('alarmLimit') ?? 2;
+    notifyListeners();
   }
 
   incrementAlarmLimit(int n) async {
